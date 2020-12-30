@@ -15,7 +15,7 @@ library(tidybayes)
 library(tidyr)
 
 
-dat<-read.csv("test.csv") #input plot dataframe 'dat'
+dat<-read.csv("Korup-floral-visitors_rawdata.csv") #input plot dataframe 'dat'
 
 #Model Priors: biologically relevant prior avoids extreme (impossible) values for standard deviations of visitation rates. 
 #all other parameters use brms default priors
