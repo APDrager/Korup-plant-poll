@@ -13,9 +13,11 @@ library(brms)
 library(bayesplot)
 library(tidybayes)
 library(tidyr)
+library(broom)
+library(ggcorrplot)
 
 
-dat<-read.csv("test.csv") #input plot dataframe 'dat'
+dat<-read.csv("Korup-floral-visitors_rawdata.csv") #input plot dataframe 'dat'
 
 #Model Priors: biologically relevant prior avoids extreme (impossible) values for standard deviations of visitation rates. 
 #all other parameters use brms default priors
@@ -58,6 +60,17 @@ Model2 <- brm(bf_ants + bf_bees + bf_beetles + bf_bugs + bf_neo_dipt + bf_dipt,
 
 save(Model2, file = "Model2.rda")
 
+#Model 2 with phylogenetically-structured species random effects:
+
+read.csv("Korup_PP_phyloM")->phyloM
+
+Model2_phylo <- brm(bf_ants + bf_bees + bf_beetles + bf_bugs + bf_neo_dipt + bf_dipt,
+                    data = dat,  prior=eprior, family = zero_inflated_poisson ,  control = list(adapt_delta = 0.99),
+                    cov_ranef=list(code=phyloM),
+                    chains=4, iter = 10000, warmup = 3000)
+
+save(Model2_phylo, file = "Model2_phylo.rda")
+
 #Model 3. Random effects only model:
 
 Model3<- brm( mvbind(ants, bees, beetles, bugs, neo_dipt, dipt) ~ 1 +offset(log(ob_time_min/60)) + (1|q|tree_tag) + (1|p|code),
@@ -73,7 +86,7 @@ neff_ratio(Model1) %>%
 
 #Comparing model fits va 10-fold random cross validation:
 
-kfold(Model1, Model2, Model3)
+kfold(Model1, Model2, Model2_phylo, Model3)
 
 
 #Save posterior samples for future use:
@@ -194,4 +207,40 @@ postModel3 %>%
   group_by(key) %>%
   median_qi(value, .width = c(.95)) %>% 
   mutate_if(is.double, round, digits = 2) -> beta_rates
+
+
+#Making the plots for correlation in insect group visitation rates to tree spp. and to individual trees (tree tags)
+#Manuscript Figure S3.
+#make matrix for correlation in tree spp: 
+tidy(Model3)->Model3tidy 
+Model3tidy %>% slice(19:33)->cor_code  #just correlation estimates for rates to tree spp.
+cor_code$estimate->corrcode  
+corcode<- matrix(0, nrow = 6, ncol = 6) #create matrix from vector:
+mindex <- matrix(1:36, nrow = 6, ncol = 6)
+corcode[mindex[upper.tri(mindex)]] <- corrcode
+corcode[lower.tri(corcode)] <- t(corcode)[lower.tri(corcode)]
+diag(corcode) <- 1
+corcode
+colnames(corcode) <- c("Ants", "Bees", "Beetles", "Bugs", "Delicate flies", "Robust flies")
+rownames(corcode) <- c("Ants", "Bees", "Beetles", "Bugs", "Delicate flies", "Robust flies")
+corr<-round(corcode, 2)
+#plot matrix
+ggcorrplot(corr,method="circle", type="upper", title="Tree species  \n", lab=T, lab_size = 3)->code_corrplot
+
+
+#make matrix for correlation in tree tags: 
+Model3tidy %>% slice(34:48)->cor_tag  
+cor_tag$estimate->corrtag  
+cortag<- matrix(0, nrow = 6, ncol = 6)
+mindex <- matrix(1:36, nrow = 6, ncol = 6)
+cortag[mindex[upper.tri(mindex)]] <- corrtag
+cortag[lower.tri(cortag)] <- t(cortag)[lower.tri(cortag)]
+diag(cortag) <- 1
+cortag
+colnames(cortag) <- c("Ants", "Bees", "Beetles", "Bugs", "Delicate flies", "Robust flies")
+rownames(cortag) <- c("Ants", "Bees", "Beetles", "Bugs", "Delicate flies", "Robust flies")
+cort<-round(cortag, 2)
+ggcorrplot(cort,method="circle", type="upper", title= "Individual trees \n", lab=T, lab_size = 3)-> tag_corrplot
+
+grid.arrange(code_corrplot, tag_corrplot, ncol=2)
 
