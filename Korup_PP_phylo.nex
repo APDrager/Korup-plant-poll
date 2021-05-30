@@ -1,0 +1,53 @@
+#NEXUS
+[R-package PHYTOOLS, Sun May 30 15:07:24 2021]
+
+BEGIN TAXA;
+	DIMENSIONS NTAX = 20;
+	TAXLABELS
+		Angylocalyx_oligophyllus
+		Cola_digitata
+		Cola_flavovelutina
+		Cola_lepidota
+		Cola_mamboana
+		Cola_micrantha
+		Cola_semecarpophylla
+		Cola_suboppositifolia
+		Crotonogynopsis_korupensis
+		Diospyros_preussii
+		Drypetes_molunduana
+		Jollydora_duparquetiana
+		Maesobotrya_barteri
+		Maesobotrya_dusenii
+		Phyllobotryon_spathulatum
+		Rinorea_kamerunensis
+		Rinorea_leiophylla
+		Trichoscypha_acuminata
+		Trichoscypha_klainei
+		Uvariopsis_bakeriana
+	;
+END;
+BEGIN TREES;
+	TRANSLATE
+		1	Angylocalyx_oligophyllus,
+		2	Cola_digitata,
+		3	Cola_flavovelutina,
+		4	Cola_lepidota,
+		5	Cola_mamboana,
+		6	Cola_micrantha,
+		7	Cola_semecarpophylla,
+		8	Cola_suboppositifolia,
+		9	Crotonogynopsis_korupensis,
+		10	Diospyros_preussii,
+		11	Drypetes_molunduana,
+		12	Jollydora_duparquetiana,
+		13	Maesobotrya_barteri,
+		14	Maesobotrya_dusenii,
+		15	Phyllobotryon_spathulatum,
+		16	Rinorea_kamerunensis,
+		17	Rinorea_leiophylla,
+		18	Trichoscypha_acuminata,
+		19	Trichoscypha_klainei,
+		20	Uvariopsis_bakeriana
+	;
+	TREE * UNTITLED = [&R] (((((((5:0.1,3:0.1):1.2567645,(8:0.377775,6:0.377775):0.9789895):9.84362365,7:11.20038815,(2:6.488752,4:6.488752):4.71163615):96.19713836,(18:3.81347751,19:3.813477466):103.584049):4.835001937,(((9:92.93401238,((15:84.7848979,(16:5.577139,17:5.577139):79.2077589):7.541675417,((13:0.1,14:0.1):90.83393029,11:90.93393033):1.392643031):0.6074390593):12.45341201,12:105.3874244):3.233735121,1:108.6211595):3.611368936):5.276071785,10:117.5086002):14.16686057,20:131.6754608);
+END;
