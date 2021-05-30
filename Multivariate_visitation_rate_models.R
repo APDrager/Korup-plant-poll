@@ -15,6 +15,8 @@ library(tidybayes)
 library(tidyr)
 library(broom)
 library(ggcorrplot)
+library(phytools)
+library(MCMCglmm)
 
 
 dat<-read.csv("Korup-floral-visitors_rawdata.csv") #input plot dataframe 'dat'
@@ -62,11 +64,16 @@ save(Model2, file = "Model2.rda")
 
 #Model 2 with phylogenetically-structured species random effects:
 
-read.csv("Korup_PP_phyloM")->phyloM
+phylo<-read.nexus("Korup_PP_phylo.nex") 
+
+inv.phylo <- MCMCglmm::inverseA(phylo, nodes = "TIPS", scale = TRUE) 
+A <- solve(inv.phylo$Ainv)
+colnames(A) <- rownames(A) <- rownames(inv.phylo$Ainv) #matrix with all the tips, not just the ones in the dataset...huh, why was it like this for Michael vs just having our 23 species?
+
 
 Model2_phylo <- brm(bf_ants + bf_bees + bf_beetles + bf_bugs + bf_neo_dipt + bf_dipt,
                     data = dat,  prior=eprior, family = zero_inflated_poisson ,  control = list(adapt_delta = 0.99),
-                    cov_ranef=list(code=phyloM),
+                    cov_ranef=list(code=A),
                     chains=4, iter = 10000, warmup = 3000)
 
 save(Model2_phylo, file = "Model2_phylo.rda")
